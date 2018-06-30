@@ -37,23 +37,6 @@ BitcoinAPI::BitcoinAPI(const string& user, const string& password, const string&
     httpClient->SetTimeout(50000);
 }
 
-BitcoinAPI::BitcoinAPI(BitcoinAPI &&api) : httpClient(api.httpClient), client(api.client) {
-    api.httpClient = nullptr;
-    api.client = nullptr;
-}
-
-BitcoinAPI &BitcoinAPI::operator=(BitcoinAPI &&other) {
-    if (this != &other) {
-        delete httpClient;
-        delete client;
-        httpClient = other.httpClient;
-        client = other.client;
-        other.httpClient = nullptr;
-        other.client = nullptr;
-    }
-    return *this;
-}
-
 BitcoinAPI::~BitcoinAPI()
 {
     delete client;
@@ -940,12 +923,8 @@ blockinfo_t BitcoinAPI::getblock(const string& blockhash) {
 	}
 
 	ret.time = result["time"].asUInt();
-	try {
-		ret.nonce = result["nonce"].asUInt();
-	} catch (...) {
-		ret.nonce = 0;
-	}
-	
+	result["nonce"] = 0;
+	ret.nonce = result["nonce"].asUInt();
 	ret.bits = result["bits"].asString();
 	ret.difficulty = result["difficulty"].asDouble();
 	ret.chainwork = result["chainwork"].asString();
@@ -1049,39 +1028,6 @@ txsinceblock_t BitcoinAPI::listsinceblock(const string& blockhash, int target_co
 	return ret;
 }
 
-std::vector<chaintip_t> BitcoinAPI::getchaintips() {
-	string command = "getchaintips";
-	Value params, result;
-	std::vector<chaintip_t> ret;
-
-	result = sendcommand(command, params);
-
-	for(ValueIterator it = result.begin(); it != result.end(); it++){
-		Value val = (*it);
-		chaintip_t tmp;
-
-		tmp.height = val["height"].asInt();
-		tmp.hash = val["hash"].asString();
-		tmp.branchlen = val["branchlen"].asInt();
-		tmp.status = val["status"].asString();
-
-		ret.push_back(std::move(tmp));
-	}
-	return ret;
-}
-
-std::string BitcoinAPI::getpreviousblockhash(const std::string& blockhash) {
-	string command = "getblockheader";
-	Value params, result;
-	std::vector<chaintip_t> ret;
-
-	params.append(blockhash);
-	result = sendcommand(command, params);
-
-
-	return result["previousblockhash"].asString();
-}
-
 
 /* === Raw transaction calls === */
 getrawtransaction_t BitcoinAPI::getrawtransaction(const string& txid, int verbose) {
@@ -1128,6 +1074,13 @@ getrawtransaction_t BitcoinAPI::getrawtransaction(const string& txid, int verbos
 			}
 
 			ret.vout.push_back(output);
+		}
+		for (ValueIterator it = result["vjoinsplit"].begin(); it != result["vjoinsplit"].end();
+				it++) {
+			Value val = (*it);
+			
+			ret.vpub_old.push_back(val["vpub_old"].asDouble());
+			ret.vpub_new.push_back(val["vpub_new"].asDouble());
 		}
 		ret.blockhash = result["blockhash"].asString();
 		ret.confirmations = result["confirmations"].asUInt();

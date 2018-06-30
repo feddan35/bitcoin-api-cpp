@@ -13,14 +13,13 @@
 #include <string>
 #include <sstream>
 
-#include <json/json.h>
-#include <json/reader.h>
-#include <json/value.h>
-
+#include <jsoncpp/json/json.h>
+#include <jsoncpp/json/reader.h>
+#include <jsoncpp/json/value.h>
 #include <jsonrpccpp/client.h>
 
 using Json::Value;
-using Json::CharReaderBuilder;
+using Json::Reader;
 using jsonrpc::Errors;
 
 
@@ -48,6 +47,8 @@ public:
 		}
 	}
 
+	~BitcoinException() throw() { };
+
 	int getCode(){
 		return code;
 	}
@@ -60,7 +61,7 @@ public:
 	std::string removePrefix(const std::string& in, const std::string& pattern){
 		std::string ret = in;
 
-		auto pos = ret.find(pattern);
+		unsigned int pos = ret.find(pattern);
 
 		if(pos <= ret.size()){
 			ret.erase(0, pos+pattern.size());
@@ -72,16 +73,14 @@ public:
 	/* Auxiliary JSON parsing */
 	int parseCode(const std::string& in){
 		Value root;
-        CharReaderBuilder builder;
-        auto reader = builder.newCharReader();
+		Reader reader;
 
 		/* Remove JSON prefix */
 		std::string strJson = removePrefix(in, "INTERNAL_ERROR: : ");
 		int ret = -1;
 
 		/* Parse error message */
-        JSONCPP_STRING errs;
-		bool parsingSuccessful = reader->parse(strJson.c_str(), strJson.c_str() + strJson.size(), &root, &errs);
+		bool parsingSuccessful = reader.parse(strJson.c_str(), root);
 		if(parsingSuccessful) {
 			ret = root["error"]["code"].asInt();
 		}
@@ -91,19 +90,17 @@ public:
 
 	std::string parseMessage(const std::string& in){
 		Value root;
-        CharReaderBuilder builder;
-        auto reader = builder.newCharReader();
+		Reader reader;
 
 		/* Remove JSON prefix */
 		std::string strJson = removePrefix(in, "INTERNAL_ERROR: : ");
 		std::string ret = "Error during parsing of >>" + strJson + "<<";
 
 		/* Parse error message */
-        JSONCPP_STRING errs;
-		bool parsingSuccessful = reader->parse(strJson.c_str(), strJson.c_str() + strJson.size(), &root, &errs);
+		bool parsingSuccessful = reader.parse(strJson.c_str(), root);
 		if(parsingSuccessful) {
 			ret = removePrefix(root["error"]["message"].asString(), "Error: ");
-			ret[0] = static_cast<char>(toupper(ret[0]));
+			ret[0] = toupper(ret[0]);
 		}
 
 		return ret;

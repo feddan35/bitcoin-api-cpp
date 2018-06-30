@@ -1,36 +1,26 @@
 # Finds the JSON-RPC-CPP includes and library
 # 
 # This module defines
-# - JSONRPCCPP_INCLUDE_DIRS, where to find json.h, etc.
-# - JSONRPCCPP_LIBRARIES, the libraries needed to use jsoncpp.
-# - JSONRPCCPP_FOUND, If false, do not try to use jsoncpp.
-# - JSONRPCCPP_LIBRARIES, where to find the jsoncpp library.
+# - JSONCPP_INCLUDE_DIRS, where to find json.h, etc.
+# - JSONCPP_LIBRARIES, the libraries needed to use jsoncpp.
+# - JSONCPP_FOUND, If false, do not try to use jsoncpp.
+# - JSONCPP_LIBRARIES, where to find the jsoncpp library.
 
-FIND_PATH(JSONRPCCPP_INCLUDE_DIRS jsonrpccpp/client.h jsonrpccpp/server.h
+FIND_PATH(JSONRPCCPP_INCLUDE_DIRS client.h server.h
     /usr/include
     /usr/local/include
     PATH_SUFFIXES jsonrpccpp
 )
 
-FIND_LIBRARY(JSONRPCCPP_COMMON_LIBRARES
+FIND_LIBRARY(JSONRPCCPP_LIBRARIES
     NAMES
     jsonrpccpp-common
-    PATHS
-    /usr/lib
-    /usr/local/lib
-)
-
-LIST(APPEND JSONRPCCPP_LIBRARIES ${JSONRPCCPP_COMMON_LIBRARES})
-
-FIND_LIBRARY(JSONRPCCPP_CLIENT_LIBRARES
-    NAMES
     jsonrpccpp-client
+    jsonrpccpp-server
     PATHS
     /usr/lib
     /usr/local/lib
 )
-
-LIST(APPEND JSONRPCCPP_LIBRARIES ${JSONRPCCPP_CLIENT_LIBRARES})
 
 IF(NOT JSONRPCCPP_INCLUDE_DIRS)
     MESSAGE("Could not find include dirs")
