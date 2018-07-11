@@ -923,8 +923,7 @@ blockinfo_t BitcoinAPI::getblock(const string& blockhash) {
 	}
 
 	ret.time = result["time"].asUInt();
-	result["nonce"] = 0;
-	ret.nonce = result["nonce"].asUInt();
+	ret.nonce = result["nonce"].asString();
 	ret.bits = result["bits"].asString();
 	ret.difficulty = result["difficulty"].asDouble();
 	ret.chainwork = result["chainwork"].asString();
