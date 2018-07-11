@@ -239,7 +239,7 @@
 		std::string merkleroot;
 		std::vector<std::string> tx;
 		unsigned int time;
-		unsigned int nonce;
+		std::string nonce;
 		std::string bits;
 		double difficulty;
 		std::string chainwork;
