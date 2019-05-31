@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 	/* === General types === */
 	struct getinfo_t{
@@ -173,6 +173,9 @@
 		std::vector<vout_t> vout;
 		std::vector<double> vpub_old;
 		std::vector<double> vpub_new;
+		double valueBalance;
+		int nShieldedSpend;
+		int nShieldedOutput;
 	};
 
 	/* getrawtransaction return type */
@@ -272,5 +275,12 @@
 		std::vector<transactioninfo_t> transactions;
 		std::string lastblock;
 	};
+
+	struct chaintip_t {
+		int height;
+        std::string hash;
+		int branchlen;
+		std::string status;
+    };
 
 #endif

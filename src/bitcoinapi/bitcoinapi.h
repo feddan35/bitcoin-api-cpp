@@ -26,6 +26,10 @@ private:
 public:
     /* === Constructor and Destructor === */
     BitcoinAPI(const std::string& user, const std::string& password, const std::string& host, int port);
+    BitcoinAPI(const BitcoinAPI &) = delete;
+    BitcoinAPI &operator=(const BitcoinAPI &) = delete;
+    BitcoinAPI(BitcoinAPI &&other);
+    BitcoinAPI &operator=(BitcoinAPI &&other);
     ~BitcoinAPI();
 
     /* === Auxiliary functions === */
@@ -132,6 +136,9 @@ public:
     bool getwork(const std::string& data);
 
     txsinceblock_t listsinceblock(const std::string& blockhash = "", int target_confirmations = 1);
+
+    std::vector<chaintip_t> getchaintips();
+    std::string getpreviousblockhash(const std::string& blockhash);
 
 
     /* === Low level calls === */
